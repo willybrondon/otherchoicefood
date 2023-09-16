@@ -1,0 +1,2 @@
+to create a gitignore file 
+go to .gitignore.io and write django the hit create
