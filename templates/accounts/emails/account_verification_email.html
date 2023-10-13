@@ -1,0 +1,7 @@
+{% autoescape off %}
+HI {{user.first_name}}
+Please click on below link to conform you registration.
+http://{{domain}}{% url 'active' uid64=uid token=token %}
+<!-- http://127.0.0.1:8080/activate/MTM/?token={{token}} -->
+
+{% endautoescape %}
