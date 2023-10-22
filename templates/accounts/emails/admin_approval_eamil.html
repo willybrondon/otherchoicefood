@@ -1,0 +1,11 @@
+{% autoescape off %}
+HI {{user.first_name}}
+{% if is_approved %}
+Congratulation! Your restaurent has been approved by the team and
+{% else %}
+we're sorry ! you are not eligible for publishing your foods menu on our platform. Please contact the administrator. support@otherchoicefoods.com
+Please click on below link to conform you registration.
+http://{{domain}}{% url 'active' uid64=uid token=token %}
+<!-- http://127.0.0.1:8080/activate/MTM/?token={{token}} -->
+
+{% endautoescape %}

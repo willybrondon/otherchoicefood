@@ -9,5 +9,6 @@
     bottom: 100%;
     animation: show-text;
     animation: duration 10s;
+    z-index: 99;
 
 }
