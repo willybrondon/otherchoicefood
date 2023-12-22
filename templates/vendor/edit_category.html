@@ -26,6 +26,8 @@
 									<!-- My Restaurants Form Start -->
 
                                     <hr>
+                                    <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angel-left" aria-hidden="true">Delete</i> Back </button>
+                                    <br><br>
                                     <h6> Modify Category</h6>
 
                                      <!-- render form  -->
@@ -48,6 +50,8 @@
 
                                             {% endif %}
                                         <button type="submit" class="btn btn-info"><i class="fa fa-check" aria-hidden="true"></i> Update </button>
+                                        <a href="{% url 'delete_category' category.id %}" onclick="return confirm('Are you sure you want to delete this food?')" class="btn btn danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete</a>
+
                                     </form>
 								</div>
 							</div>
