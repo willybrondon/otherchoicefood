@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'vendor',
     'menu',
+    'marketplace',
     
 ]
 
@@ -68,6 +69,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'accounts.context_processors.get_vendor',
                 'accounts.context_processors.get_google_api',
+                'marketpalce.context_processors.get_cart_counter'
+                'marketpalce.context_processors.get_cart_amounts'
             ],
         },
     },
