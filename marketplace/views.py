@@ -6,6 +6,10 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Prefetch
 from vendor.models import Vendor
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.mesure import D # D is the shortcut of distance
+from django.contrib.gis.db.models.function import Distance
 
 # Create your views here.
 def marketplace(request):
@@ -117,3 +121,36 @@ def delete_cart(request, cart_id):
 
         else:
             return JsonResponse({'status':'Failed', 'message':'Invalid request'})
+        
+def search(request):
+    if not 'address' in request.GET:
+        return redirect('marketplace')
+    else :
+
+
+        address = request.GET['address']
+        latitude = request.GET['lat']
+        longitude = request.GET['lng']
+        radius = request.GET['radius']
+        keyword = request.GET['keyword']
+        # get vendor ids that has the food item the user is looking for
+        fecth_vendors_by_fooditems = FoodItem.objects.filter(food_title__icontains=keyword, is_available=True).values_list('vendor', flat=True)
+
+        vendors = Vendor.objects.filter(Q(id__in=fecth_vendors_by_fooditems) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True))
+        
+        if latitude and longitude and radius :
+            pnt = GEOSGeometry('POINT(% %)' % (longitude, latitude))
+            venodrs = Vendor.objects.filter(Q(id__in=fecth_vendors_by_fooditems) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True),user_profile__distance_Ite=(pnt, D(km=2)))
+            user_profile__distance_Ite = (pnt, D(km=radius)).annotate(distance=Distance('user_profile__location', pnt)).order_by('distance')
+        vendor_count = vendors.count()
+        
+            for v in vendors :
+                v.kms = round(v.distance.km)
+        context= {
+            'vendors' : vendors,
+            'vendor_count' : vendor_count,
+            'source_location': address,
+
+        }
+
+        return render(request, 'marketplace/listings.html', context)

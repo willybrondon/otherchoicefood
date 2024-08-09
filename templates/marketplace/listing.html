@@ -58,7 +58,9 @@
                                                 </span> Apple
                                                 Juice</span> -->
                                             {% endif %}
-                                            
+                                            {% if source_location %}
+                                            <span><small>{{vendor.kms}}kms<b></b>awy from {{source_location}}</small> </span>
+                                            {% endif %}
                                         </div>
                                         <div class="list-option">
 

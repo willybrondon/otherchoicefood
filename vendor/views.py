@@ -50,7 +50,7 @@ def menu_builder(request):
     context = {
         'categories' : categories,
     }
-    return render(request, 'vendor/menu_builder.html')
+    return render(request, 'vendor/menu_builder.html', context)
 
 
 @login_required(login_url='login')
@@ -70,8 +70,10 @@ def add_category(request) :
             category_name = form.cleaned_data['category_name']
             category = form.save(commit=False)
             category.vendor = get_vendor(request)
-            category.slug = slugify(category_name)
-            form.save()
+            
+            category.save() # the category id will be generated
+            category.slug = slugify(category_name)+'-'+str(category.id) # pizza-13
+            category.save()
             messages.success(request, 'category added successfully')
             return redirect('menu_builder')
         else: 

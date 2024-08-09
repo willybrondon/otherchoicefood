@@ -1,4 +1,4 @@
-from .models import Card, cart
+from .models import Card
 
 from menu.models import FoodItem
 
@@ -6,7 +6,7 @@ def get_cart_counter(request):
     cart_count = 0
     if request.user.is_authenticated():
         try:
-            cart_items = cart.objects.filter(user=request.user)
+            cart_items = Card.objects.filter(user=request.user)
             if cart_items :
                 for cart_item in cart_items :
                     cart_count += cart_item.quantity()

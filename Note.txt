@@ -1,2 +1,7 @@
 to create a gitignore file 
 go to .gitignore.io and write django the hit create
+
+for dowloaoding gdl wheel: 
+http://pypi.naturalcapitalproject.org/simple/gdal/index.html
+
+need to install gdl package for python version 3.10

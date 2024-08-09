@@ -18,3 +18,5 @@ $(document).ready(function () {
     })
     
 })
+
+// need to add the long and latitude. This
