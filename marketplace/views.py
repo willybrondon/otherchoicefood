@@ -140,12 +140,13 @@ def search(request):
         
         if latitude and longitude and radius :
             pnt = GEOSGeometry('POINT(% %)' % (longitude, latitude))
-            venodrs = Vendor.objects.filter(Q(id__in=fecth_vendors_by_fooditems) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True),user_profile__distance_Ite=(pnt, D(km=2)))
+            vendors = Vendor.objects.filter(Q(id__in=fecth_vendors_by_fooditems) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True),user_profile__distance_Ite=(pnt, D(km=2)))
             user_profile__distance_Ite = (pnt, D(km=radius)).annotate(distance=Distance('user_profile__location', pnt)).order_by('distance')
-        vendor_count = vendors.count()
+        
         
             for v in vendors :
                 v.kms = round(v.distance.km)
+        vendor_count = vendors.count()
         context= {
             'vendors' : vendors,
             'vendor_count' : vendor_count,
