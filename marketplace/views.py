@@ -1,24 +1,29 @@
-from django.shortcuts import render, get_object_or_404
+from datetime import date
+import datetime
+from django.shortcuts import redirect , render, get_object_or_404
 from marketplace.context_processors import get_cart_amounts, get_cart_counter
 from marketplace.models import Card
 from menu.models import Category, FoodItem
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Prefetch
-from vendor.models import Vendor
+from vendor.models import OpenHour, Vendor
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.mesure import D # D is the shortcut of distance
-from django.contrib.gis.db.models.function import Distance
+#from django.contrib.gis.mesure import D # D is the shortcut of distance
+#from django.contrib.gis.db.models.function import Distance
 
 # Create your views here.
 def marketplace(request):
     vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)
     vendor_count = vendors.count()
     context = {
-        'vendors' : vendors
+        'vendors' : vendors,
+        'vendor_count' : vendor_count
     }
     return render(request, 'marketplace/listing.html', context)
+
+
 def vendor_detail(request, vendor_slug):
     vendor = get_object_or_404(Vendor, vendor_slug=vendor_slug)
     categories = Category.objects.filter(vendor=vendor).prefetch_related(
@@ -27,6 +32,12 @@ def vendor_detail(request, vendor_slug):
         )
     )
 
+    opening_hours = OpenHour.objects.filter(vendor=vendor).order_by('day', '-from_hour')
+    # check the curret day opening hour 
+    today_date = date.today()
+    today = today_date.isoweekday()
+    current_opening_hours = OpenHour.objects.filter(vendor=vendor, day=today)
+    
     if request.user.is_authenticated():
         cart_items = Card.objects.filter(user=request.user)
     else:
@@ -35,6 +46,9 @@ def vendor_detail(request, vendor_slug):
         'vedor' : vendor,
         "categories" : categories,
         'cart_items' : cart_items,
+        'opening_hours' : opening_hours,
+        'current_opening_hours': current_opening_hours,
+        
     }
     return render(request, 'marketplace/vendor_detail.html', context)
 
@@ -142,7 +156,6 @@ def search(request):
             pnt = GEOSGeometry('POINT(% %)' % (longitude, latitude))
             vendors = Vendor.objects.filter(Q(id__in=fecth_vendors_by_fooditems) | Q(vendor_name__icontains=keyword, is_approved=True, user__is_active=True),user_profile__distance_Ite=(pnt, D(km=2)))
             user_profile__distance_Ite = (pnt, D(km=radius)).annotate(distance=Distance('user_profile__location', pnt)).order_by('distance')
-        
         
             for v in vendors :
                 v.kms = round(v.distance.km)

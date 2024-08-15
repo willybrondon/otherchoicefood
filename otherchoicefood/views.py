@@ -3,8 +3,8 @@ from django.shortcuts import render
 from vendor.models import Vendor
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.mesure import D # D is the shortcut of distance
-from django.contrib.gis.db.models.function import Distance
+#from django.contrib.gis.mesure import D # D is the shortcut of distance
+#from django.contrib.gis.db.models.function import Distance
 
 
 def get_or_set_current_location(request):

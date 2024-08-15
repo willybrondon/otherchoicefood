@@ -23,3 +23,14 @@
     color: #000000 !important;
 
 }
+
+table > tbody > tr > td {
+    border: none !important;
+}
+
+#opening_hours select {
+    padding: 5px, 10 px !important;
+}
+.btn-sucess.add_hour{
+    padding: 7px 15px 7px 15px;
+}

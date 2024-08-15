@@ -79,8 +79,8 @@ $(document).ready(function () {
                     )
 
                     if (window.location.pathname == '/cart/') {
-                            removeCartItem(response.qty, cart_id);
-                            checkEmptyCart();
+                        removeCartItem(response.qty, cart_id);
+                        checkEmptyCart();
                     }
                 }
                 
@@ -126,13 +126,13 @@ $(document).ready(function () {
 
     // delete cart element if the qty is 0 
     function removeCartItem(cartItemeQty, cart_id) {
-            if (cartItemeQty <= 0) {
-                // remove the cart item element 
-                document.getElementById('cart-item-' + cart_id).remove()
-                }  
+        if (cartItemeQty <= 0) {
+            // remove the cart item element 
+            document.getElementById('cart-item-' + cart_id).remove()
+        }
             
         
-        }
+    }
     // ceck if the cart is empty
     function checkEmptyCart() {
         var cart_counter = document.getElementById('cart_counter').innerHTML
@@ -143,10 +143,81 @@ $(document).ready(function () {
 
     // apply cart amounts
     function applyCartAmount(subtotal, tax, grand_total) {
-        if (window.location.pathname == '/cart/'){
+        if (window.location.pathname == '/cart/') {
             $('#subtotal').html(subtotal)
             $('#tax').html(tax)
             $('#total').html(grand_total)
-        }  
+        }
     }
+    // add opening hour 
+    $('.add_hour').on('click', function (e) {
+        e.preventDefault();
+        var day = document.getElementById('id_day').value
+        var from_hour = document.getElementById('id_from_hour').value
+        var to_hour = document.getElementById('id_to_hour').value
+        var is_closed = document.getElementById('id_is_closed').checked
+        var crsf_token = $('input[name=crsfmiddlewaretoken]').val()
+        var url = document.getElementById('add_hour_url').value
+
+        console.log(day, from_hour, to_hour, crsf_token)
+        if (is_closed) {
+            is_closed = 'True'
+            condition = "day !=''"
+        } else {
+            is_closed = 'False'
+            condition = "from_hour != '' && to_hour != ''"
+        }
+       
+        if (eval(condition)) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'day': day,
+                    'from_hour': from_hour,
+                    'to_hour': to_hour,
+                    'is_closed': is_closed,
+                    'crsfmiddlewaretoken': crsf_token
+                },
+                success: function (response) {
+                    if (response.status == "success") {
+                        if (response.status == 'Closed') {
+                            html = '<tr id="hour-'+response.id+'"><td><b>' + response.day + '</b></td><td>Closed</td></td><a href="#" class="remove_hour" data_url="/vendor/opening-hours/remove/'+response.id+'/">Remove</a></td></tr>';
+                                
+                        } else {
+                        }
+                        html = '<tr id="hour-'+response.id+'"><td><b>' + response.day + '</b></td><td>' + response.from_hour + ' - ' + response.to_hour + '</td></td><a href="#" class="remove_hour" data_url="/vendor/opening-hours/remove/'+response.id+'/">Remove</a></td></tr>'
+                        $('.opening_hours').append()
+                        document.getElementById('opening_hours')
+                    } else {
+                        swal(response.message, '', 'error')
+                    }
+                        
+                }
+            })
+        } else {
+            swal('Please fill all fields', '', 'info')
+            
+        }
+    })
+
+    // remove opening hour
+
+    
+    $.document.on('click', '.remove_hour', function (e) { 
+        e.preventDefault();
+    url = $(this).attr('data-url');
+    $.ajax({
+        type: 'GET',
+        url: url, 
+        success: function (response) {
+            if (response.status == 'success')
+                document.getElementById('hour-' + response.id).remove()
+            
+        }
+    })
+})
+        
+     
+    // document ready close 
 });

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Vendor
+from .models import Vendor, OpenHour
 from accounts.validators import allow_only_images_validator
 
 class VendorForm(forms.ModelForm):
@@ -7,3 +7,8 @@ class VendorForm(forms.ModelForm):
     class Meta:
         model = Vendor
         fields = ['vendor_name', 'vendor_license']
+
+class OpenHourForm(forms.ModelForm):
+    class Meta:
+        model = OpenHour
+        fields = ['day', 'from_hour', 'to_hour', 'is_closed']
