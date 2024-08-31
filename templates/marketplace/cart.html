@@ -24,8 +24,8 @@
 
                                     <div id="menu-item-list-6272" class="menu-itam-list">
                                         
-                                        {% if cart_items %}
                                         <ul>
+                                        {% if cart_items %}
                                             {% for item in cart_items %}
                                             <li id="cart-item-{{item.id}}">
                                                 <div class="image-holder"> <img src="{{ itemfood.image.url }}" alt=""></a></div>
@@ -47,20 +47,7 @@
                                             {% endfor %}
                                         {% else %}
                                             <div class="text-center pt-5">Cart is empty</div>
-                                        {% endif %}
-
-                                            <!-- <li>
-                                                <div class="image-holder"> <a href="assets/extra-images/cover-photo10-1024x187.jpg"><img src="assets/extra-images/cover-photo10-150x150.jpg" alt=""></a></div>
-                                                <div class="text-holder">
-                                                    <h6>Garlic Bread 12" Deep</h6>
-                                                    <span>Pizza bread made with extra virgin olive oil</span>
-                                                </div>
-                                                <div class="price-holder">
-                                                    <span class="price">£3.50</span>
-                                                    <a href="#" class="restaurant-add-menu-btn"><i class="icon-plus4 text-color"></i></a>
-                                                    <span id="add-menu-loader-11"></span>
-                                                </div>
-                                            </li> -->
+                                        {% endif %}   
                                         </ul>
                                         
                                     </div>
@@ -113,6 +100,9 @@
                                                 <span id="total">{{ grand_total }}</span>
                                             </span>
                                         </li> 
+
+                                        <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3">PROCEED TO CHECKOUT</a>
+
                                         
                                          
                                     </ul>

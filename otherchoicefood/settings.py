@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'marketplace',
     'django.contrib.gis',
     'customers',
+    'orders',
    
     
 ]
@@ -75,6 +76,7 @@ TEMPLATES = [
                 'marketpalce.context_processors.get_cart_counter',
                 'marketpalce.context_processors.get_cart_amounts',
                 'accounts.context_processors.get_user_profile',
+                'accounts.context_processors.get_paypal_client_id',
             ],
         },
     },
@@ -162,4 +164,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL ='otherchoicefood <brondonwilly@gmail.com>'
 
-GOOGLE_API_KEY = 'AIzaSyBevbB5JkZxRT28NlqKNCsbvPq_71OjWY4'
+GOOGLE_API_KEY = config('GOOGLE_API_KEY')
+
+
+PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID')
+
+# pop up 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'

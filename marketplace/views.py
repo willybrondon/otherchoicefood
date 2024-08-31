@@ -1,6 +1,7 @@
 from datetime import date
 import datetime
 from django.shortcuts import redirect , render, get_object_or_404
+from accounts.models import UserProfile
 from marketplace.context_processors import get_cart_amounts, get_cart_counter
 from marketplace.models import Card
 from menu.models import Category, FoodItem
@@ -12,7 +13,7 @@ from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
 #from django.contrib.gis.mesure import D # D is the shortcut of distance
 #from django.contrib.gis.db.models.function import Distance
-
+from order.forms import OrderForm
 # Create your views here.
 def marketplace(request):
     vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)
@@ -168,3 +169,31 @@ def search(request):
         }
 
         return render(request, 'marketplace/listings.html', context)
+    
+
+@login_required(login_url='login')
+def checkout(request):
+    cart_items = Card.objects.filter(user=request.user).order_by('created_at')
+    cart_count = cart_items.count()
+    if cart_count <= 0:
+        return redirect('marketplace')
+    user_profile = UserProfile.objects.get(user=request.user)
+    default_values = {
+        'first_name': user_profile.first_name,
+        'last_name': user_profile.last_name,
+        'phone': user_profile.phone_number,
+        'email' : user_profile.email,
+        'address' : user_profile.address,
+        'country' : user_profile.country,
+        'state' : user_profile.state,
+        'city' : user_profile.city,
+        'pin_code' : user_profile.pin_code
+
+    }
+    form = OrderForm(initial= default_values)
+    context = {
+        'form' : form,
+        'cart_items' : cart_items,
+        'cart_count' : cart_count,
+    }
+    return render(request, 'marketplace/checkout.html', context)
