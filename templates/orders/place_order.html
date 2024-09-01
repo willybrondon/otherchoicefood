@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block content %}
 
 
@@ -94,8 +95,16 @@
                                             </span>
                                         </li> 
 
+                                        {% if order.payment_method == 'paypal' %}
+
+
                                         <!-- paypal checkout button -->
                                         <div id="paypal-button-container"></div>
+                                        {% elif order.payment_method == 'RazorPay' %}
+                                        <div id="rzp_payment_button">
+                                            <button class ="btn btn-danger w-100 p-2" id="rzp-button1">Pay with Rarzorpay</button>
+                                        </div>
+                                        {% else %}
                                          
                                     </ul>
                             </div>
@@ -177,6 +186,54 @@
             });
         }
     }).render('#paypal-button-container');
+    // Razor Payment Gateway 
+
+    
+    var options = {
+        "key": "{'{RZP_KEY_ID}}", // Enter the Key ID generated from the Dashboard
+        "amount": "{{ rzp_amount }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "Food otherchoice Online", //your business name
+        "description": "Multivendor otherchoice vendor",
+        "image": "{% static 'logo/foodlogo.png %}",
+        "order_id": "{{rzp_order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler" : function (response) {
+
+            // Replace the above to show a success message within this page, e.g.
+            const element = document.getElementById('rzp_payment_button');
+                element.innerHTML = '';
+                element.innerHTML = '<h4 class="text-center"><i class="fa fa-spinner fa-spin></i>Please Wait .. </h4>';
+                // Or go to another URL:  actions.redirect('thank_you.html');
+            
+
+
+            var transaction_id = response.razorpay_payment_id
+            var payment_method = 'RazorPar'
+            var status = 'Success'
+            sendTransaction(transaction_id, payment_method, status)
+
+
+
+        },
+        "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+            "name": "{{order.name}}", //your customer's name
+            "email": "g{{order.email}}",
+            "contact": "{{order.phone}}" //Provide the customer's phone number for better conversion rates 
+        },
+        "notes": {
+            "address": "{{order.address}}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+
+
 
     // send the data to payment view  to store in the database 
     function sendTransaction(transaction_id, payment_method, status){
