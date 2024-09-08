@@ -1,20 +1,20 @@
-from http.client import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 import json
 from django.shortcuts import render, redirect
 
 from accounts.utils import send_notification
-from marketplace.models import Card 
+from marketplace.models import Card, Tax 
 from marketplace.context_processors import get_cart_amounts
-from orders.models import Order, OrderedFood
+from menu.models import FoodItem
+from orders.models import Order, OrderedFood, Payment
 # Create your views here.
 from .forms import OrderForm
 from .utils import generate_order_number
-from account.utils import send_notification
 from django.contrib.auth.decorators import login_required
 import razorpay
 from otherchoicefood.settings import RZP_KEY_ID, RZP_KEY_SECRET
 
-client = razorpay.client(auth=(RZP_KEY_ID, RZP_KEY_SECRET) )
+client_razor = razorpay.client(auth=(RZP_KEY_ID, RZP_KEY_SECRET))
 
 @login_required(login='/login')
 def place_order(request):
@@ -23,6 +23,40 @@ def place_order(request):
     if cart_count <= 0:
         return redirect('marketplace')
     
+    vendors_ids = []
+    for i in cart_items : 
+        if i.fooditem.vendor.id not in vendors_ids:
+
+            vendors_ids.append(i.fooditme.vendor.id)
+    
+    get_tax = Tax.objects.filter(is_active=True)
+    subtotal = 0
+    k={}
+    total_data = []
+    for i in cart_items:
+        fooditem= FoodItem.objects.get(pk=i.fooditem.id, vendor_id__in=vendors_ids)
+        v_id = fooditem.vendor.id
+        if v_id in k:
+            subtotal = k[v_id]
+            subtotal += (fooditem.price * i.quantity)
+            k[v_id] = subtotal
+        else :
+            subtotal = (fooditem.price * i.quantity)
+            k[v_id] = subtotal
+        
+        # calculate tax_data 
+        for i in get_tax:
+            tax_type = i.tax_type
+            tax_pencentage = i.tax_percentage
+            tax_amount = round((tax_pencentage * subtotal)/100, 2)
+            tax_dict.update({tax_type: {str(tax_pencentage) : str(tax_amount)}})
+
+        # constrauct the tax_data 
+        total_data.update({fooditem.vendor.id: {str(subtotal): str(tax_dict)}})
+        
+
+
+
     subtotal = get_cart_amounts(request)['subtotal'] 
     total_tax = get_cart_amounts(request)['tax'] 
     grand_total = get_cart_amounts(request)['grand_total'] 
@@ -42,10 +76,11 @@ def place_order(request):
             order.pin_code = form.cleaned_data['pin_code']
             order.user = request.user
             order.total = grand_total
+            order.total_data = json.dumps(total_data)
             order.tax_data = json.dumps(tax_data)
             order.total_tax = total_tax 
             order.payment_method = request.POST['payment_method']
-
+            order.vendor.add(*vendors_ids)
             
             order.save()
             order.order_number = generate_order_number(order.id)
@@ -61,7 +96,7 @@ def place_order(request):
                     "key2": "value2"
                 }
             }
-            rzp_order = client.order.create(data = DATA)
+            rzp_order = client_razor.order.create(data = DATA)
             rzp_order_id = rzp_order['id']
             context = {
                 'order' : order,
@@ -108,7 +143,7 @@ def payments(request):
        
 
         # Move the cart items to ordered food model 
-        cart_items = Card.object.filter(user=request.user)
+        cart_items = Card.objects.filter(user=request.user)
         for item in cart_items:
             ordered_food = OrderedFood()
             ordered_food.order = order 

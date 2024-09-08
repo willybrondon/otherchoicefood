@@ -13,7 +13,7 @@ from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
 #from django.contrib.gis.mesure import D # D is the shortcut of distance
 #from django.contrib.gis.db.models.function import Distance
-from order.forms import OrderForm
+from orders.forms import OrderForm
 # Create your views here.
 def marketplace(request):
     vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)

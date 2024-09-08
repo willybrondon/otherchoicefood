@@ -41,7 +41,16 @@
 	<!--  include the paypal javascript SDK -->
 	<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&currency=USD"></script>
 
-    
+    <!-- include datatble plug in script and css -->
+	<link rel="stylesheet" href="//cdn.datatables.net/2.1.5/css/dataTables.dataTables.min.css">
+	<script scr="//cdn.datatables.net/2.1.5/js/dataTables.min.js"></script>
+	
+	<script>
+	$(document).ready(function () {
+		$('#myOrdersTable').DataTable();
+	});
+	</script>
+	
 
 	<style>
 		body, .main-section p, .mce-content-body p{

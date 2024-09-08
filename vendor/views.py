@@ -4,6 +4,8 @@ from accounts.forms import VendorForm, UserProfileForm, OpenHoursForm
 from accounts.models import UserProfile
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from orders.models import Order, OrderedFood
+
 from .models import OpenHour, Vendor
 from accounts.views import check_role_vendor
 from menu.models import Category, FoodItem
@@ -224,5 +226,29 @@ def remove_opening_hours(request, pk=None):
 
 
 
+def order_detail(request, order_number): 
+    try :
+        order = Order.objects.get(order_number=order_number, is_closed=True)
+        ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=get_vendor(request))
+        context = {
+            'order': order,
+            'ordered_food': ordered_food,
+            'subtotal': order.get_total_by_vendor()['subtotal'],
+            'tax_data':order.get_total_by_vendor()['tax_dict'],
+            'grand_total':order.get_total_by_vendor()['grand_total'],
+        }
+        return render(request, 'vendors/order_detail.html', context)
+    except: 
+        return redirect('vendor')
+    
+
+def my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
+    context ={
+        'orders':orders,
+
+    }
+    return render(request, 'vendors/my_ordres_vendor', context)
 
 
